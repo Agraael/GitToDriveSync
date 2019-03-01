@@ -28,12 +28,11 @@ optional arguments:
 #### {credential}
 ```
 usage: GitToDriveSync credential [-h] [--path path]
-
-  -h, --help   show this help message and exit
-  --path path  path of the credential file (by default it's .)
 ```
 This command allow to retrieve the **credentials.json** file that you need to access
 your Google Drive account.
+
+- **PATH** : this allow to set the path of the credential file 
 
 ```
 Visit this URL to get an authorization code
@@ -46,3 +45,10 @@ credentials.json  Dockerfile  GitToDriveSync  README.md
 > for now the oauth2 authentification will be on your web browser
 
 #### {init}
+```
+usage: usage: GitToDriveSync init [-h] (--link link | --path path) [--json json]
+```
+With this command you can initialize a git repository for drive.
+When initialized all the folder/repository content will be uploaded in a new directory  with the same name at the root.
+
+- **LINK** : 

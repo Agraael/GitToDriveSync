@@ -38,8 +38,8 @@ class HttpServer:
         self.server.server_close()
 
 
-INIT_USAGE = "usage: GitToDriveSync init [-h] (--link link | --path path) [--json json]"
-AUTO_USAGE = "GitToDriveSync auto [-h] (--link link | --path path) [--json json] [--hook]"
+INIT_USAGE = "usage: GitToDriveSync init [-h] (--link LINK | --path PATH) [--json JSON]"
+AUTO_USAGE = "GitToDriveSync auto [-h] (--link LINK | --path PATH) [--json JSON] [--hook]"
 
 
 def paser_init() -> argparse:
@@ -48,23 +48,23 @@ def paser_init() -> argparse:
     subparsers.required = True
 
     parser_credential = subparsers.add_parser("credential", help='getting json credential for GoogleDrive')
-    parser_credential.add_argument('--path', type=str, help='path of the credential file (by default it\'s .)', default=None, metavar='path')
+    parser_credential.add_argument('--path', type=str, help='path of the credential file (by default it\'s .)', default=None, metavar='PATH')
 
     parser_init = subparsers.add_parser('init', help='init the drive directory and pull the repo', usage=INIT_USAGE)
     parser_init_group = parser_init.add_argument_group('repository')
-    parser_init_group.add_argument('--link', type=str, nargs=1, metavar='link', help='link of the git repository', default=[''])
-    parser_init_group.add_argument('--path', type=str, nargs=1, metavar='path', help='path of the repository or where it will be cloned', default=[''])
-    parser_init.add_argument('--json', type=str, nargs=1, metavar='json', required=False, help='credential json file', default=[''])
+    parser_init_group.add_argument('--link', type=str, nargs=1, metavar='LINK', help='link of the git repository', default=[''])
+    parser_init_group.add_argument('--path', type=str, nargs=1, metavar='PATH', help='path of the repository or where it will be cloned', default=[''])
+    parser_init.add_argument('--json', type=str, nargs=1, metavar='JSON', required=False, help='credential json file', default=[''])
 
     parser_start = subparsers.add_parser('start', help='start the GitToDrive" service/server on the directory')
-    parser_start.add_argument('dir', type=str, default='.', help='directory to start the git drive service')
+    parser_start.add_argument('DIR', type=str, default='.', help='directory to start the git drive service')
     parser_start.add_argument('--hook', help='use web hook to update', action='store_true')
 
     parser_auto = subparsers.add_parser('auto', help='init and start the GitToDrive service/server', usage=AUTO_USAGE)
     parser_auto_group = parser_auto.add_argument_group('repository')
-    parser_auto_group.add_argument('--link', type=str, nargs=1, metavar='link', help='link of the git repository', default=[''])
-    parser_auto_group.add_argument('--path', type=str, nargs=1, metavar='path', help='path of the repository or where it will be cloned', default=[''])
-    parser_auto.add_argument('--json', type=str, nargs=1, metavar='json', required=False, help='credential json file', default=[''])
+    parser_auto_group.add_argument('--link', type=str, nargs=1, metavar='LINK', help='link of the git repository', default=[''])
+    parser_auto_group.add_argument('--path', type=str, nargs=1, metavar='PATH', help='path of the repository or where it will be cloned', default=[''])
+    parser_auto.add_argument('--json', type=str, nargs=1, metavar='JSON', required=False, help='credential json file', default=[''])
     parser_auto.add_argument('--hook', help='use web hook to update', action='store_true')
 
     return parser
