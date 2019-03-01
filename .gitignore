@@ -65,19 +65,17 @@ __pycache__/
 .Python
 build/
 develop-eggs/
-dist/
+
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+
 parts/
 sdist/
 var/
 wheels/
 *.egg-info/
 .installed.cfg
-*.egg
 MANIFEST
 
 # PyInstaller
@@ -140,7 +138,6 @@ celerybeat-schedule
 .env
 .venv
 env/
-venv/
 ENV/
 env.bak/
 venv.bak/
@@ -158,7 +155,6 @@ venv.bak/
 # mypy
 .mypy_cache/
 
+test/
 
-\.idea/
-
-*~
+\.gd/

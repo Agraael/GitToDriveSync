@@ -97,6 +97,12 @@ def check_and_push(repo: str) -> None:
         exit(2)
 
 
+def get_path_last_name(path: str) -> str:
+    if path[-1] == os.sep:
+        path = path[:-1]
+    return path.split(os.sep)[-1]
+
+
 def hook_and_push(repo: str) -> None:
     os.chdir(repo)
     folder = os.path.basename(os.getcwd())
@@ -113,30 +119,34 @@ def clone_repo(link: str, path: str) -> str:
         path = os.path.splitext(os.path.basename(link))[0]
     ret = subprocess.run(['git', 'clone', link, path])
     if ret.returncode != 0:
-        exit(ret)
+        exit(128)
     return path
 
 
-def check_if_repo(path: str) -> None:
-    ret = subprocess.run(['git', '-C', path, 'rev-parse', '--is-inside-work-tree'])
-    if ret.returncode != 0:
-        exit(ret)
+def check_repo(path: str) -> None:
+    if not os.path.isdir(path + '/.git'):
+        print("GitToDriveSync error: " + path + "/.git does not exist")
+        exit(128)
+    if not os.path.isdir(path + '/.gd'):
+        print("GitToDriveSync error: " + path + " has allready been initialized by drive")
+        exit(128)
 
 
 def init_git_drive(link: str, path: str, json: str) -> None:
-    if not path:
+    if link:
         folder = clone_repo(link, path)
     else:
-        check_if_repo(path)
+        check_repo(path)
         folder = path
     if json:
         subprocess.run(['mkdir ' + folder + '/.gd'], shell=True)
-        subprocess.run(['cp ' + json + ' ' + folder + '.gd/credentials.json'], shell=True)
+        subprocess.run(['cp ' + json + ' ' + folder + '/.gd/credentials.json'], shell=True)
     os.chdir(folder)
     if not json:
         subprocess.run(['drive', 'init'])
-    subprocess.run(['drive', 'new', '-folder', folder])
-    subprocess.run(['drive push -no-prompt -destination ' + folder + ' *'], shell=True)
+    folder_name = get_path_last_name(folder)
+    subprocess.run(['drive', 'new', '-folder', folder_name])
+    subprocess.run(['drive push -no-prompt -destination ' + folder_name + ' *'], shell=True)
 
 
 def auto_git_drive(link: str, path: str, json: str, hook: bool) -> None:

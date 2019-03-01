@@ -26,4 +26,4 @@ RUN echo "$ssh_prv_key" > /root/.ssh/id_rsa && \
 
 EXPOSE 8080
 
-ENTRYPOINT [ "python3", "-u", "./GitToDriveSync.py", "auto", "--json", "credentials.json", "--hook" ]
+ENTRYPOINT [ "python3", "-u", "./GitToDriveSync.py", "auto", "--json", "credentials.json", "--hook" , "--link"]
