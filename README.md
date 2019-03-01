@@ -3,13 +3,13 @@
 GitToDrive is a python scrpit who allow to sync a git repository to a Google Drive Accout.  
 It can be deployed inside a container , using the Dockerfile.
 
-### Requirement
+### Prerequisites
 
 - **Python3**
 - **[Drive](https://github.com/odeke-em/drive)**
 - **Docker**
 
-
+## Usage
 ```
 usage: GitToDriveSync.py [-h] {credential,init,start,auto} ...
 
@@ -24,4 +24,25 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
+```  
+#### {credential}
 ```
+usage: GitToDriveSync credential [-h] [--path path]
+
+  -h, --help   show this help message and exit
+  --path path  path of the credential file (by default it's .)
+```
+This command allow to retrieve the **credentials.json** file that you need to access
+your Google Drive account.
+
+```
+Visit this URL to get an authorization code
+[...]
+Paste the authorization code: ******************
+
+ls
+credentials.json  Dockerfile  GitToDriveSync  README.md
+```
+> for now the oauth2 authentification will be on your web browser
+
+#### {init}

@@ -38,36 +38,45 @@ class HttpServer:
         self.server.server_close()
 
 
-def paser_init():
+INIT_USAGE = "usage: GitToDriveSync init [-h] (--link link | --path path) [--json json]"
+AUTO_USAGE = "GitToDriveSync auto [-h] (--link link | --path path) [--json json] [--hook]"
+
+
+def paser_init() -> argparse:
     parser = argparse.ArgumentParser(description="Service who connect every update to a git branch into a Google drive")
     subparsers = parser.add_subparsers(help='', dest='mode')
     subparsers.required = True
 
-    parser_credential = subparsers.add_parser('credential', help='getting json credential for GoogleDrive')
+    parser_credential = subparsers.add_parser("credential", help='getting json credential for GoogleDrive')
+    parser_credential.add_argument('--path', type=str, help='path of the credential file (by default it\'s .)', default=None, metavar='path')
 
-    parser_init = subparsers.add_parser('init', help='init the drive directory and pull the repo')
-    parser_init.add_argument('link', type=str, help='link of the git repository')
-    parser_init.add_argument('--json', type=str, nargs=1, metavar='json', required=False, help='credential json file')
+    parser_init = subparsers.add_parser('init', help='init the drive directory and pull the repo', usage=INIT_USAGE)
+    parser_init_group = parser_init.add_argument_group('repository')
+    parser_init_group.add_argument('--link', type=str, nargs=1, metavar='link', help='link of the git repository', default=[''])
+    parser_init_group.add_argument('--path', type=str, nargs=1, metavar='path', help='path of the repository or where it will be cloned', default=[''])
+    parser_init.add_argument('--json', type=str, nargs=1, metavar='json', required=False, help='credential json file', default=[''])
 
     parser_start = subparsers.add_parser('start', help='start the GitToDrive" service/server on the directory')
     parser_start.add_argument('dir', type=str, default='.', help='directory to start the git drive service')
     parser_start.add_argument('--hook', help='use web hook to update', action='store_true')
 
-    parser_auto = subparsers.add_parser('auto', help='init and start the GitToDrive service/server')
-    parser_auto.add_argument('link', type=str, help='link of the git repository')
-    parser_auto.add_argument('--json', type=str, nargs=1, metavar='json', required=False, help='credential json file')
+    parser_auto = subparsers.add_parser('auto', help='init and start the GitToDrive service/server', usage=AUTO_USAGE)
+    parser_auto_group = parser_auto.add_argument_group('repository')
+    parser_auto_group.add_argument('--link', type=str, nargs=1, metavar='link', help='link of the git repository', default=[''])
+    parser_auto_group.add_argument('--path', type=str, nargs=1, metavar='path', help='path of the repository or where it will be cloned', default=[''])
+    parser_auto.add_argument('--json', type=str, nargs=1, metavar='json', required=False, help='credential json file', default=[''])
     parser_auto.add_argument('--hook', help='use web hook to update', action='store_true')
 
     return parser
 
 
-def update_drive_repo(folder: str):
+def update_drive_repo(folder: str) -> None:
     print('pull !')
     subprocess.run(['git', 'pull'])
     subprocess.run(['drive push -no-prompt -ignore-conflict -destination ' + folder + ' *'], shell=True)
 
 
-def check_and_push(repo: str):
+def check_and_push(repo: str) -> None:
     os.chdir(repo)
     folder = os.path.basename(os.getcwd())
     try:
@@ -85,9 +94,10 @@ def check_and_push(repo: str):
             time.sleep(10)
     except KeyboardInterrupt:
         print('^C received, shutting down the service')
+        exit(2)
 
 
-def hook_and_push(repo: str):
+def hook_and_push(repo: str) -> None:
     os.chdir(repo)
     folder = os.path.basename(os.getcwd())
     server = None
@@ -95,29 +105,43 @@ def hook_and_push(repo: str):
         server = HttpServer(data=repo)
     except KeyboardInterrupt:
         print('^C received, shutting down the web server')
+        exit(2)
 
 
-def init_git_drive(link: str, json: str):
-    folder = os.path.splitext(os.path.basename(link))[0]
-    if not os.path.exists(folder):
-        ret = subprocess.run(['git', 'clone', link])
-        if ret.returncode != 0:
-            exit(1)
+def clone_repo(link: str, path: str) -> str:
+    if not path:
+        path = os.path.splitext(os.path.basename(link))[0]
+    ret = subprocess.run(['git', 'clone', link, path])
+    if ret.returncode != 0:
+        exit(ret)
+    return path
+
+
+def check_if_repo(path: str) -> None:
+    ret = subprocess.run(['git', '-C', path, 'rev-parse', '--is-inside-work-tree'])
+    if ret.returncode != 0:
+        exit(ret)
+
+
+def init_git_drive(link: str, path: str, json: str) -> None:
+    if not path:
+        folder = clone_repo(link, path)
     else:
-        print(folder + " directory allready exist")
+        check_if_repo(path)
+        folder = path
+    if json:
+        subprocess.run(['mkdir ' + folder + '/.gd'], shell=True)
+        subprocess.run(['cp ' + json + ' ' + folder + '.gd/credentials.json'], shell=True)
     os.chdir(folder)
     if not json:
         subprocess.run(['drive', 'init'])
-    else:
-        subprocess.run(['mkdir .gd'], shell=True)
-        subprocess.run(['cp ../' + json + ' .gd/credentials.json'], shell=True)
     subprocess.run(['drive', 'new', '-folder', folder])
     subprocess.run(['drive push -no-prompt -destination ' + folder + ' *'], shell=True)
 
 
-def auto_git_drive(link: str, json: str, hook: bool):
+def auto_git_drive(link: str, path: str, json: str, hook: bool) -> None:
     folder = os.path.splitext(os.path.basename(link))[0]
-    init_git_drive(link, json)
+    init_git_drive(link, path, json)
     os.chdir("..")
     if not hook:
         check_and_push(folder)
@@ -125,23 +149,36 @@ def auto_git_drive(link: str, json: str, hook: bool):
         hook_and_push(folder)
 
 
+def link_path_args_check(arg: argparse, cmd: str) -> bool:
+    if not arg.link[0] and not arg.path[0]:
+        if cmd == "init":
+            print(INIT_USAGE)
+            print("GitToDriveSync init: error: the following arguments are required: --link OR --path")
+        if cmd == "auto":
+            print(AUTO_USAGE)
+            print("GitToDriveSync auto: error: the following arguments are required: --link OR --path")
+        return False
+    return True
+
+
 if __name__ == "__main__":
 
     args = paser_init().parse_args()
-
-    if args.mode == 'init':
-        init_git_drive(args.link, args.json[0])
+    # print(vars(args))
+    if args.mode == 'init' and link_path_args_check(args, "init"):
+        init_git_drive(args.link[0], args.path[0], args.json[0])
     elif args.mode == 'start':
         if not args.hook:
             check_and_push(args.dir)
         else:
             hook_and_push(args.dir)
-    elif args.mode == 'auto':
-        auto_git_drive(args.link, args.json[0], args.hook)
+    elif args.mode == 'auto' and link_path_args_check(args, "auto"):
+        auto_git_drive(args.link[0], args.path[0], args.json[0], args.hook)
     elif args.mode == 'credential':
         subprocess.run(['drive', 'init'])
-        subprocess.run(['cp .gd/credentials.json .'], shell=True)
-        subprocess.run(['rm .gd/credentials.json'], shell=True)
+        if not args.path:
+            args.path = '.'
+        subprocess.run(['mv .gd/credentials.json ' + args.path], shell=True)
         subprocess.run(['rmdir .gd'], shell=True)
     else:
         exit(1)
