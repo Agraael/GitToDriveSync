@@ -27,7 +27,7 @@ optional arguments:
 ```  
 #### {credential}
 ```
-usage: GitToDriveSync credential [-h] [--path path]
+usage: GitToDriveSync credential [-h] [--path PATH]
 ```
 This command allow to retrieve the **credentials.json** file that you need to access
 your Google Drive account.
@@ -46,9 +46,31 @@ credentials.json  Dockerfile  GitToDriveSync  README.md
 
 #### {init}
 ```
-usage: usage: GitToDriveSync init [-h] (--link link | --path path) [--json json]
+usage: usage: GitToDriveSync init [-h] (--link LINK | --path PATH) [--json JSON]
 ```
 With this command you can initialize a git repository for drive.
 When initialized all the folder/repository content will be uploaded in a new directory  with the same name at the root.
 
-- **LINK** : 
+- **LINK** : Link of the git repository to use (clone)
+- **PATH** : if used with **LINK** it allow to set where the repository will be cloned. Otherwise if used alone, you can select an allready cloned repository
+- **JSON** : use json credential instead of the default drive oauth2
+
+#### {start}
+
+```
+usage: GitToDriveSync start [-h] [--hook] DIR
+```
+
+Allow to start the GitDriveSync loop that will check and update the drive directory linked to it
+
+- **DIR** : path of the git repository initialized iwht the **init** command
+- **--hook** : switch the checking loop with a server , that update to POST request.
+the path will be /{DIR} on the port 8080 (you can use it with github hook)
+
+#### {auto}
+
+```
+usage: GitToDriveSync auto [-h] (--link LINK | --path PATH) [--json JSON] [--hook]
+```
+
+fusion of the command **init** and **start** , arguments are exactly the same
