@@ -58,14 +58,15 @@ When initialized all the folder/repository content will be uploaded in a new dir
 #### {start}
 
 ```
-usage: GitToDriveSync start [-h] [--hook] DIR
+usage: GitToDriveSync start [-h] [--hook] [--port PORT] DIR
 ```
 
 Allow to start the GitDriveSync loop that will check and update the drive directory linked to it
 
-- **DIR** : path of the git repository initialized iwht the **init** command
 - **--hook** : switch the checking loop with a server , that update to POST request.
-the path will be /{DIR} on the port 8080 (you can use it with github hook)
+the path will be **/{DIR}** on the port 8080 (you can use it with github hook)
+- **PORT** : set the server's port (with **--hook**)
+- **DIR** : path of the git repository initialized iwht the **init** command
 
 #### {auto}
 
@@ -74,3 +75,18 @@ usage: GitToDriveSync auto [-h] (--link LINK | --path PATH) [--json JSON] [--hoo
 ```
 
 fusion of the command **init** and **start** , arguments are exactly the same
+
+## Docker
+
+If you want to use it with docker, you have to build it with this :
+```
+docker build -t git_drive_sync \
+--build-arg ssh_prv_key="$(cat ~/.ssh/id_rsa)" \
+--build-arg ssh_pub_key="$(cat ~/.ssh/id_rsa.pub)" \
+--build-arg credentials="test/credentials.json" .
+```
+
+Then you can run it (for one repository) with this : 
+```
+docker run -p 8080:8080 ed13c54f5bb1 git@github.com:Agraael/GitToDriveSync.git
+```

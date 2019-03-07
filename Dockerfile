@@ -1,5 +1,6 @@
 FROM golang:alpine as drive
 
+ARG credentials
 ARG ssh_prv_key
 ARG ssh_pub_key
 
@@ -10,8 +11,8 @@ RUN set -e -u -x \
 
 RUN apk update && apk add python3 openssh
 
-ADD GitToDriveSync.py .
-ADD credentials.json .
+ADD GitToDriveSync .
+ADD $credentials ./credentials.json
 
 # Authorize SSH Host
 RUN mkdir -p /root/.ssh && \
@@ -26,4 +27,4 @@ RUN echo "$ssh_prv_key" > /root/.ssh/id_rsa && \
 
 EXPOSE 8080
 
-ENTRYPOINT [ "python3", "-u", "./GitToDriveSync.py", "auto", "--json", "credentials.json", "--hook" , "--link"]
+ENTRYPOINT [ "python3", "-u", "./GitToDriveSync", "auto", "--json", "credentials.json", "--hook", "--link"]

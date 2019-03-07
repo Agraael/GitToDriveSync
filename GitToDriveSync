@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import sys
 import argparse
 import subprocess
 import os
@@ -28,10 +29,11 @@ class GitDriveHandler(BaseHTTPRequestHandler):
 
 
 class HttpServer:
-    def __init__(self, data: any):
-        self.server = HTTPServer(('', 8080), GitDriveHandler)
+    def __init__(self, data: any, port: int):
+        self.server = HTTPServer(('', port), GitDriveHandler)
         self.server.data = data
-        print("set hook to http://kraken.localhost.run/" + self.server.data)
+        print(self.server.server_address)
+        print("/" + self.server.data)
         self.server.serve_forever()
 
     def __del__(self):
@@ -59,6 +61,7 @@ def paser_init() -> argparse:
     parser_start = subparsers.add_parser('start', help='start the GitToDrive" service/server on the directory')
     parser_start.add_argument('DIR', type=str, default='.', help='directory to start the git drive service')
     parser_start.add_argument('--hook', help='use web hook to update', action='store_true')
+    parser_start.add_argument('--port', help='set the port for --hook option (8080 by default)', type=int, metavar='PORT', default=8080)
 
     parser_auto = subparsers.add_parser('auto', help='init and start the GitToDrive service/server', usage=AUTO_USAGE)
     parser_auto_group = parser_auto.add_argument_group('repository')
@@ -66,6 +69,7 @@ def paser_init() -> argparse:
     parser_auto_group.add_argument('--path', type=str, nargs=1, metavar='PATH', help='path of the repository or where it will be cloned', default=[''])
     parser_auto.add_argument('--json', type=str, nargs=1, metavar='JSON', required=False, help='credential json file', default=[''])
     parser_auto.add_argument('--hook', help='use web hook to update', action='store_true')
+    parser_auto.add_argument('--port', help='set the port for --hook option (8080 by default)', type=int, metavar='PORT', default=8080)
 
     return parser
 
@@ -89,11 +93,11 @@ def check_and_push(repo: str) -> None:
 
             if local == base and local != remote:
                 update_drive_repo(folder)
-            else:
-                print("nothing")
-            time.sleep(10)
+            # else:
+            #     print("nothing")
+            time.sleep(5)
     except KeyboardInterrupt:
-        print('^C received, shutting down the service')
+        print(': received, shutting down the service')
         exit(2)
 
 
@@ -103,14 +107,14 @@ def get_path_last_name(path: str) -> str:
     return path.split(os.sep)[-1]
 
 
-def hook_and_push(repo: str) -> None:
+def hook_and_push(repo: str, port: int) -> None:
     os.chdir(repo)
     folder = os.path.basename(os.getcwd())
     server = None
     try:
-        server = HttpServer(data=repo)
+        server = HttpServer(data=repo, port=port)
     except KeyboardInterrupt:
-        print('^C received, shutting down the web server')
+        print(': received, shutting down the web server')
         exit(2)
 
 
@@ -149,14 +153,14 @@ def init_git_drive(link: str, path: str, json: str) -> None:
     subprocess.run(['drive push -no-prompt -destination ' + folder_name + ' *'], shell=True)
 
 
-def auto_git_drive(link: str, path: str, json: str, hook: bool) -> None:
+def auto_git_drive(link: str, path: str, json: str, hook: bool, port: int) -> None:
     folder = os.path.splitext(os.path.basename(link))[0]
     init_git_drive(link, path, json)
     os.chdir("..")
     if not hook:
         check_and_push(folder)
     else:
-        hook_and_push(folder)
+        hook_and_push(folder, port)
 
 
 def link_path_args_check(arg: argparse, cmd: str) -> bool:
@@ -174,16 +178,16 @@ def link_path_args_check(arg: argparse, cmd: str) -> bool:
 if __name__ == "__main__":
 
     args = paser_init().parse_args()
-    # print(vars(args))
+    print(vars(args))
     if args.mode == 'init' and link_path_args_check(args, "init"):
         init_git_drive(args.link[0], args.path[0], args.json[0])
     elif args.mode == 'start':
         if not args.hook:
-            check_and_push(args.dir)
+            check_and_push(args.DIR)
         else:
-            hook_and_push(args.dir)
+            hook_and_push(args.DIR, args.port)
     elif args.mode == 'auto' and link_path_args_check(args, "auto"):
-        auto_git_drive(args.link[0], args.path[0], args.json[0], args.hook)
+        auto_git_drive(args.link[0], args.path[0], args.json[0], args.hook, args.port)
     elif args.mode == 'credential':
         subprocess.run(['drive', 'init'])
         if not args.path:
