@@ -1,3 +1,4 @@
+[GuardRails badge](https://badges.production.guardrails.io/Agraael/GitToDriveSync.svg?token=34fda599487d2fa333dec9761e50e5885ab4ab7ddfa4dd0b8dd0a080f9b86dc3)](https://dashboard.guardrails.io/default/gh/Agraael/GitToDriveSync)
 # GitToDriveSync
 
 GitToDrive is a python scrpit who allow to sync a git repository to a Google Drive Accout.  
