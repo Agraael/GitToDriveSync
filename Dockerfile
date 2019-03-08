@@ -11,7 +11,7 @@ RUN set -e -u -x \
 
 RUN apk update && apk add python3 openssh
 
-ADD GitToDriveSync .
+ADD gidi .
 ADD $credentials ./credentials.json
 
 # Authorize SSH Host
@@ -27,4 +27,4 @@ RUN echo "$ssh_prv_key" > /root/.ssh/id_rsa && \
 
 EXPOSE 8080
 
-ENTRYPOINT [ "python3", "-u", "./GitToDriveSync", "auto", "--json", "credentials.json", "--hook", "--link"]
+ENTRYPOINT [ "python3", "-u", "./gidi", "auto", "--json", "credentials.json", "--hook", "--link"]

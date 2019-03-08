@@ -12,7 +12,7 @@ It can be deployed inside a container , using the Dockerfile.
 
 ## Usage
 ```
-usage: GitToDriveSync.py [-h] {credential,init,start,auto} ...
+usage: gidi [-h] {credential,init,start,auto} ...
 
 Service who connect every update to a git branch into a Google drive
 
@@ -28,7 +28,7 @@ optional arguments:
 ```  
 #### {credential}
 ```
-usage: GitToDriveSync credential [-h] [--path PATH]
+usage: gidi credential [-h] [--path PATH]
 ```
 This command allow to retrieve the **credentials.json** file that you need to access
 your Google Drive account.
@@ -41,13 +41,13 @@ Visit this URL to get an authorization code
 Paste the authorization code: ******************
 
 ls
-credentials.json  Dockerfile  GitToDriveSync  README.md
+credentials.json  Dockerfile  gidi  README.md
 ```
 > for now the oauth2 authentification will be on your web browser
 
 #### {init}
 ```
-usage: usage: GitToDriveSync init [-h] (--link LINK | --path PATH) [--json JSON]
+usage: usage: gidi init [-h] (--link LINK | --path PATH) [--json JSON]
 ```
 With this command you can initialize a git repository for drive.
 When initialized all the folder/repository content will be uploaded in a new directory  with the same name at the root.
@@ -59,7 +59,7 @@ When initialized all the folder/repository content will be uploaded in a new dir
 #### {start}
 
 ```
-usage: GitToDriveSync start [-h] [--hook] [--port PORT] DIR
+usage: gidi start [-h] [--hook] [--port PORT] DIR
 ```
 
 Allow to start the GitDriveSync loop that will check and update the drive directory linked to it
@@ -72,7 +72,7 @@ the path will be **/{DIR}** on the port 8080 (you can use it with github hook)
 #### {auto}
 
 ```
-usage: GitToDriveSync auto [-h] (--link LINK | --path PATH) [--json JSON] [--hook]
+usage: gidi auto [-h] (--link LINK | --path PATH) [--json JSON] [--hook]
 ```
 
 fusion of the command **init** and **start** , arguments are exactly the same
@@ -90,4 +90,8 @@ docker build -t git_drive_sync \
 Then you can run it (for one repository) with this : 
 ```
 docker run -p 8080:8080 git_drive_sync:latest git@github.com:Agraael/GitToDriveSync.git
+```
+
+```
+ curl --url "0.0.0.0:8080/usefull-garbage" --request POST
 ```

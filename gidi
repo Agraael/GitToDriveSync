@@ -38,8 +38,8 @@ class HttpServer:
         self.server.server_close()
 
 
-INIT_USAGE = "usage: GitToDriveSync init [-h] (--link LINK | --path PATH) [--json JSON]"
-AUTO_USAGE = "GitToDriveSync auto [-h] (--link LINK | --path PATH) [--json JSON] [--hook]"
+INIT_USAGE = "usage: gidi init [-h] (--link LINK | --path PATH) [--json JSON]"
+AUTO_USAGE = "gidi auto [-h] (--link LINK | --path PATH) [--json JSON] [--hook]"
 
 
 def paser_init() -> argparse:
@@ -126,10 +126,10 @@ def clone_repo(link: str, path: str) -> str:
 
 def check_repo(path: str) -> None:
     if not os.path.isdir(path + '/.git'):
-        print("GitToDriveSync error: " + path + "/.git does not exist")
+        print("gidi error: " + path + "/.git does not exist")
         exit(128)
     if not os.path.isdir(path + '/.gd'):
-        print("GitToDriveSync error: " + path + " has allready been initialized by drive")
+        print("gidi error: " + path + " has allready been initialized by drive")
         exit(128)
 
 
@@ -166,10 +166,10 @@ def link_path_args_check(arg: argparse, cmd: str) -> bool:
     if not arg.link[0] and not arg.path[0]:
         if cmd == "init":
             print(INIT_USAGE)
-            print("GitToDriveSync init: error: the following arguments are required: --link OR --path")
+            print("gidi init: error: the following arguments are required: --link OR --path")
         if cmd == "auto":
             print(AUTO_USAGE)
-            print("GitToDriveSync auto: error: the following arguments are required: --link OR --path")
+            print("gidi auto: error: the following arguments are required: --link OR --path")
         return False
     return True
 
