@@ -3,6 +3,7 @@ FROM golang:alpine as drive
 ARG credentials
 ARG ssh_prv_key
 ARG ssh_pub_key
+ARG port=8080
 
 RUN set -e -u -x \
 && apk add --no-cache --no-progress build-base git \
@@ -11,7 +12,7 @@ RUN set -e -u -x \
 
 RUN apk update && apk add python3 openssh
 
-ADD gidi .
+ADD gitdrive .
 ADD $credentials ./credentials.json
 
 # Authorize SSH Host
@@ -25,6 +26,6 @@ RUN echo "$ssh_prv_key" > /root/.ssh/id_rsa && \
     chmod 600 /root/.ssh/id_rsa && \
     chmod 600 /root/.ssh/id_rsa.pub
 
-EXPOSE 8080
+EXPOSE $port
 
-ENTRYPOINT [ "python3", "-u", "./gidi", "auto", "--json", "credentials.json", "--hook", "--link"]
+ENTRYPOINT [ "python3", "-u", "./gitdrive", "auto", "--json", "credentials.json", "--hook", "--link"]

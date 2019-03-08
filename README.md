@@ -12,7 +12,7 @@ It can be deployed inside a container , using the Dockerfile.
 
 ## Usage
 ```
-usage: gidi [-h] {credential,init,start,auto} ...
+usage: gitdrive [-h] {credential,init,start,auto} ...
 
 Service who connect every update to a git branch into a Google drive
 
@@ -28,7 +28,7 @@ optional arguments:
 ```  
 #### {credential}
 ```
-usage: gidi credential [-h] [--path PATH]
+usage: gitdrive credential [-h] [--path PATH]
 ```
 This command allow to retrieve the **credentials.json** file that you need to access
 your Google Drive account.
@@ -41,13 +41,13 @@ Visit this URL to get an authorization code
 Paste the authorization code: ******************
 
 ls
-credentials.json  Dockerfile  gidi  README.md
+credentials.json  Dockerfile  gitdrive  README.md
 ```
 > for now the oauth2 authentification will be on your web browser
 
 #### {init}
 ```
-usage: usage: gidi init [-h] (--link LINK | --path PATH) [--json JSON]
+usage: usage: gitdrive init [-h] (--link LINK | --path PATH) [--json JSON]
 ```
 With this command you can initialize a git repository for drive.
 When initialized all the folder/repository content will be uploaded in a new directory  with the same name at the root.
@@ -59,7 +59,7 @@ When initialized all the folder/repository content will be uploaded in a new dir
 #### {start}
 
 ```
-usage: gidi start [-h] [--hook] [--port PORT] DIR
+usage: gitdrive start [-h] [--hook] [--port PORT] DIR
 ```
 
 Allow to start the GitDriveSync loop that will check and update the drive directory linked to it
@@ -72,7 +72,7 @@ the path will be **/{DIR}** on the port 8080 (you can use it with github hook)
 #### {auto}
 
 ```
-usage: gidi auto [-h] (--link LINK | --path PATH) [--json JSON] [--hook]
+usage: gitdrive auto [-h] (--link LINK | --path PATH) [--json JSON] [--hook]
 ```
 
 fusion of the command **init** and **start** , arguments are exactly the same
@@ -86,6 +86,7 @@ docker build -t git_drive_sync \
 --build-arg ssh_pub_key="$(cat ~/.ssh/id_rsa.pub)" \
 --build-arg credentials="test/credentials.json" .
 ```
+You can add `--build-arg port=80` to change the expose port (8080 by default)
 
 Then you can run it (for one repository) with this : 
 ```
