@@ -25,7 +25,8 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-```  
+```
+---  
 #### {credential}
 ```
 usage: gitdrive credential [-h] [--path PATH]
@@ -44,7 +45,7 @@ ls
 credentials.json  Dockerfile  gitdrive  README.md
 ```
 > for now the oauth2 authentification will be on your web browser
-
+---
 #### {init}
 ```
 usage: usage: gitdrive init [-h] (--link LINK | --path PATH) [--json JSON]
@@ -55,7 +56,7 @@ When initialized all the folder/repository content will be uploaded in a new dir
 - **LINK** : Link of the git repository to use (clone)
 - **PATH** : if used with **LINK** it allow to set where the repository will be cloned. Otherwise if used alone, you can select an allready cloned repository
 - **JSON** : use json credential instead of the default drive oauth2
-
+---
 #### {start}
 
 ```
@@ -68,7 +69,7 @@ Allow to start the GitDriveSync loop that will check and update the drive direct
 the path will be **/{DIR}** on the port 8080 (you can use it with github hook)
 - **PORT** : set the server's port (with **--hook**)
 - **DIR** : path of the git repository initialized iwht the **init** command
-
+---
 #### {auto}
 
 ```
@@ -76,6 +77,7 @@ usage: gitdrive auto [-h] (--link LINK | --path PATH) [--json JSON] [--hook]
 ```
 
 fusion of the command **init** and **start** , arguments are exactly the same
+
 
 ## Docker
 
@@ -92,7 +94,7 @@ Then you can run it (for one repository) with this :
 ```
 docker run -p 8080:8080 git_drive_sync:latest git@github.com:Agraael/GitToDriveSync.git
 ```
-
+Then you can update it like this
 ```
  curl --url "0.0.0.0:8080/GitToDriveSync" --request POST
 ```
