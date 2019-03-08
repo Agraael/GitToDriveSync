@@ -6,8 +6,6 @@ import os
 import time
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
-PORT_NUMBER = 8080
-
 
 class GitDriveHandler(BaseHTTPRequestHandler):
 
@@ -70,7 +68,6 @@ def paser_init() -> argparse:
     parser_auto.add_argument('--json', type=str, nargs=1, metavar='JSON', required=False, help='credential json file', default=[''])
     parser_auto.add_argument('--hook', help='use web hook to update', action='store_true')
     parser_auto.add_argument('--port', help='set the port for --hook option (8080 by default)', type=int, metavar='PORT', default=8080)
-
     return parser
 
 
@@ -93,8 +90,6 @@ def check_and_push(repo: str) -> None:
 
             if local == base and local != remote:
                 update_drive_repo(folder)
-            # else:
-            #     print("nothing")
             time.sleep(5)
     except KeyboardInterrupt:
         print(': received, shutting down the service')
@@ -121,6 +116,8 @@ def hook_and_push(repo: str, port: int) -> None:
 def clone_repo(link: str, path: str) -> str:
     if not path:
         path = os.path.splitext(os.path.basename(link))[0]
+    if os.path.isdir(path):
+        return path
     ret = subprocess.run(['git', 'clone', link, path])
     if ret.returncode != 0:
         exit(128)
@@ -149,7 +146,9 @@ def init_git_drive(link: str, path: str, json: str) -> None:
     if not json:
         subprocess.run(['drive', 'init'])
     folder_name = get_path_last_name(folder)
-    subprocess.run(['drive', 'new', '-folder', folder_name])
+    ret = subprocess.run(['drive list | grep ' + folder_name], shell=True)
+    if ret.returncode != 0:
+        subprocess.run(['drive', 'new', '-folder', folder_name])
     subprocess.run(['drive push -no-prompt -destination ' + folder_name + ' *'], shell=True)
 
 
@@ -178,7 +177,7 @@ def link_path_args_check(arg: argparse, cmd: str) -> bool:
 if __name__ == "__main__":
 
     args = paser_init().parse_args()
-    print(vars(args))
+    # print(vars(args))
     if args.mode == 'init' and link_path_args_check(args, "init"):
         init_git_drive(args.link[0], args.path[0], args.json[0])
     elif args.mode == 'start':

@@ -89,5 +89,5 @@ docker build -t git_drive_sync \
 
 Then you can run it (for one repository) with this : 
 ```
-docker run -p 8080:8080 ed13c54f5bb1 git@github.com:Agraael/GitToDriveSync.git
+docker run -p 8080:8080 git_drive_sync:latest git@github.com:Agraael/GitToDriveSync.git
 ```
