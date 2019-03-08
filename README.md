@@ -93,5 +93,5 @@ docker run -p 8080:8080 git_drive_sync:latest git@github.com:Agraael/GitToDriveS
 ```
 
 ```
- curl --url "0.0.0.0:8080/usefull-garbage" --request POST
+ curl --url "0.0.0.0:8080/GitToDriveSync" --request POST
 ```
